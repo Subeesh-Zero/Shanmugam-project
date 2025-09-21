@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Orders Admin - Sports Store</title>
+  <title>My Orders - Sports Store</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -18,54 +18,15 @@
     }
     
     .hero-section {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 3rem 0;
-      margin-bottom: 2rem;
-      border-radius: 0 0 20px 20px;
-    }
-    
-    .welcome-text {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    
-    .welcome-subtext {
-      font-size: 1.1rem;
-      opacity: 0.9;
+      background: #e9ecef;
+      color: #333;
+      padding: 2rem 0;
+      margin-bottom: 1rem;
     }
     
     .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    }
-    
-    .table-container {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    }
-    
-    .table thead th {
-      background: #2c3e50;
-      color: white;
-      border: none;
-      padding: 1rem;
-      font-weight: 600;
-    }
-    
-    .table tbody td {
-      padding: 1rem;
-      vertical-align: middle;
-    }
-    
-    .table-hover tbody tr:hover {
-      background-color: rgba(52, 152, 219, 0.1);
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
     }
     
     .status-badge {
@@ -74,217 +35,68 @@
       border-radius: 20px;
     }
     
-    .btn-sm {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.875rem;
-      border-radius: 0.2rem;
+    .form-control:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
     
-    .loading-bar {
-      height: 4px;
-      width: 100%;
-      background: #f8f9fa;
-      overflow: hidden;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
-      display: none;
+    .order-price {
+      color: #dc3545;
+      font-weight: 700;
+      font-size: 1.2rem;
     }
     
-    .loading-bar::before {
-      content: '';
-      display: block;
-      height: 100%;
-      width: 50%;
-      background: linear-gradient(to right, transparent, #3498db, transparent);
-      animation: loading 1.5s infinite;
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
     }
     
-    @keyframes loading {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
-    }
-    
-    .modal-content {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-    
-    .modal-header {
-      background: #2c3e50;
-      color: white;
-      border-radius: 12px 12px 0 0;
-    }
-    
-    .btn-close {
-      filter: invert(1);
-    }
-    
-    .form-control:focus, .form-select:focus {
-      border-color: #3498db;
-      box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
-    }
-    
-    .search-box {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      margin-bottom: 1.5rem;
+    .empty-state i {
+      font-size: 4rem;
+      color: #ddd;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
-<div class="loading-bar" id="mainLoadingBar"></div>
 
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
     <a class="navbar-brand" href="index.html">
       <i class="fa-solid fa-trophy me-2"></i>Sports Store
     </a>
-    <span class="navbar-text text-light fs-6 d-none d-md-block">Admin Dashboard</span>
   </div>
 </nav>
 
 <div class="hero-section text-center">
   <div class="container">
-    <div class="welcome-text">Orders Administration</div>
-    <div class="welcome-subtext">Manage all customer orders and track their status</div>
+    <h1>My Orders</h1>
+    <p>Track your orders and delivery status</p>
   </div>
 </div>
 
 <div class="container mt-4">
   <div id="alertArea"></div>
   
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3><i class="fa-solid fa-list-check me-2"></i>All Orders</h3>
-    <button class="btn btn-primary" onclick="loadOrders()">
-      <i class="fa-solid fa-rotate me-1"></i> Refresh
-    </button>
-  </div>
-  
-  <div class="search-box">
+  <div class="mb-4">
+    <h4><i class="fa-solid fa-magnifying-glass me-2"></i>Find Your Orders</h4>
     <div class="input-group">
-      <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-      <input type="text" id="searchInput" class="form-control" placeholder="Search orders by customer, product, or ID...">
-      <button class="btn btn-outline-secondary" type="button" onclick="filterOrders()">Search</button>
+      <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+      <input type="text" id="phoneInput" class="form-control form-control-lg" placeholder="Enter your phone number">
+      <button class="btn btn-primary" id="searchBtn">
+        <span class="spinner-border spinner-border-sm" id="searchSpinner" style="display: none;"></span>
+        <span id="searchText">Search Orders</span>
+      </button>
     </div>
+    <div class="form-text mt-2">Enter the phone number you used when placing your order</div>
   </div>
   
-  <div class="table-container">
-    <div class="table-responsive">
-      <table class="table table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Time</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="ordersTable">
-          <tr>
-            <td colspan="9" class="text-center py-5">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2">Loading orders...</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <h3 class="mb-3" id="resultsTitle" style="display: none;">Your Orders</h3>
+  <div id="ordersContainer"></div>
 </div>
 
-<!-- Update Modal -->
-<div class="modal fade" id="updateModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form id="updateForm">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Update Order</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body row g-3">
-          <input type="hidden" id="updOrderId" name="orderId">
-          
-          <div class="col-md-6">
-            <label class="form-label"><i class="fa-solid fa-user me-1"></i> Customer Name</label>
-            <input type="text" class="form-control" id="updCustomerName" name="customerName" required>
-          </div>
-          
-          <div class="col-md-6">
-            <label class="form-label"><i class="fa-solid fa-phone me-1"></i> Phone</label>
-            <input type="text" class="form-control" id="updPhone" name="phone" required>
-          </div>
-          
-          <div class="col-md-8">
-            <label class="form-label"><i class="fa-solid fa-cube me-1"></i> Product</label>
-            <input type="text" class="form-control" id="updProductTitle" name="productTitle" required>
-          </div>
-          
-          <div class="col-md-2">
-            <label class="form-label"><i class="fa-solid fa-hashtag me-1"></i> Quantity</label>
-            <input type="number" class="form-control" id="updQuantity" name="quantity" min="1" required>
-          </div>
-          
-          <div class="col-md-2">
-            <label class="form-label"><i class="fa-solid fa-indian-rupee-sign me-1"></i> Total Amount</label>
-            <input type="number" class="form-control" id="updTotalAmount" name="totalAmount" required>
-          </div>
-          
-          <div class="col-12">
-            <label class="form-label"><i class="fa-solid fa-location-dot me-1"></i> Address</label>
-            <input type="text" class="form-control" id="updAddress" name="address" required>
-          </div>
-          
-          <div class="col-md-3">
-            <label class="form-label"><i class="fa-solid fa-map-pin me-1"></i> Pin Code</label>
-            <input type="text" class="form-control" id="updPin" name="pin" required>
-          </div>
-          
-          <div class="col-md-5">
-            <label class="form-label"><i class="fa-solid fa-city me-1"></i> Place / City</label>
-            <input type="text" class="form-control" id="updPlace" name="place" required>
-          </div>
-          
-          <div class="col-md-4">
-            <label class="form-label"><i class="fa-solid fa-circle-check me-1"></i> Status</label>
-            <select class="form-select" id="updStatus" name="status">
-              <option value="NEW">NEW</option>
-              <option value="PROCESSING">PROCESSING</option>
-              <option value="SHIPPED">SHIPPED</option>
-              <option value="DELIVERED">DELIVERED</option>
-              <option value="CANCELLED">CANCELLED</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fa-solid fa-xmark me-1"></i> Close
-          </button>
-          <button type="submit" class="btn btn-success">
-            <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbx7Z-vqCzhfKiXz4faj9voVygx9H0pBk8O6JMmZkY5guIcVKAG0ufpMd6qxvMC6EKfsEw/exec";
-let updateModal;
-let allOrders = [];
 
 function showAlert(msg, type='danger') {
   document.getElementById('alertArea').innerHTML = `
@@ -296,178 +108,112 @@ function showAlert(msg, type='danger') {
   setTimeout(() => { document.getElementById('alertArea').innerHTML = '' }, 6000);
 }
 
-function showLoading(show) {
-  document.getElementById('mainLoadingBar').style.display = show ? 'block' : 'none';
-}
+document.getElementById("searchBtn").addEventListener("click", fetchOrders);
+document.getElementById("phoneInput").addEventListener("keyup", (e) => { 
+  if (e.key === "Enter") fetchOrders(); 
+});
 
-async function loadOrders() {
-  try {
-    showLoading(true);
-    const res = await fetch(`${API_URL}?action=getAllOrders`);
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
-    }
-    const data = await res.json();
-    allOrders = data;
-    displayOrders(data);
-  } catch (err) {
-    console.error(err);
-    showAlert("Failed to load orders. Please check your connection and try again.", "danger");
-  } finally {
-    showLoading(false);
+async function fetchOrders() {
+  const phone = document.getElementById("phoneInput").value.trim();
+  if (!phone) { 
+    showAlert("Please enter your phone number", "warning"); 
+    return; 
   }
-}
-
-function displayOrders(orders) {
-  const tbody = document.getElementById("ordersTable");
   
-  if (!orders || orders.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="9" class="text-center py-5">
-          <i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i>
-          <h5 class="text-muted">No Orders Found</h5>
-          <p class="text-muted">There are no orders in the system yet.</p>
-        </td>
-      </tr>`;
+  // Validate phone number format
+  if (!/^[0-9]{10}$/.test(phone)) {
+    showAlert("Please enter a valid 10-digit phone number", "warning");
     return;
   }
   
-  tbody.innerHTML = orders.map(o => {
+  try {
+    // Show loading state
+    document.getElementById("searchSpinner").style.display = "inline-block";
+    document.getElementById("searchText").textContent = "Searching...";
+    document.getElementById("searchBtn").disabled = true;
+    
+    const res = await fetch(`${API_URL}?action=getOrders&phone=${encodeURIComponent(phone)}`);
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status}: ${txt}`);
+    }
+    const data = await res.json();
+    displayOrders(data, phone);
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+    showAlert("Failed to fetch orders. Please check your connection and try again.");
+  } finally {
+    document.getElementById("searchSpinner").style.display = "none";
+    document.getElementById("searchText").textContent = "Search Orders";
+    document.getElementById("searchBtn").disabled = false;
+  }
+}
+
+function displayOrders(orders, phone) {
+  const container = document.getElementById("ordersContainer");
+  const resultsTitle = document.getElementById("resultsTitle");
+  
+  if (!orders || orders.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-box-open"></i>
+        <h4 class="text-muted">No orders found</h4>
+        <p class="text-muted">We couldn't find any orders for phone number: ${phone}</p>
+      </div>`;
+    resultsTitle.style.display = 'none';
+    return;
+  }
+  
+  resultsTitle.style.display = 'block';
+  container.innerHTML = orders.map(order => {
     // Determine status badge color
     let statusClass = 'bg-secondary';
-    if (o.Status === 'DELIVERED') statusClass = 'bg-success';
-    else if (o.Status === 'SHIPPED') statusClass = 'bg-primary';
-    else if (o.Status === 'PROCESSING') statusClass = 'bg-warning';
-    else if (o.Status === 'CANCELLED') statusClass = 'bg-danger';
+    if (order.Status === 'Delivered') statusClass = 'bg-success';
+    else if (order.Status === 'Shipped') statusClass = 'bg-primary';
+    else if (order.Status === 'Processing') statusClass = 'bg-warning';
+    else if (order.Status === 'Cancelled') statusClass = 'bg-danger';
     
-    // Format the timestamp
-    let formattedTime = o.Timestamp;
-    try {
-      if (o.Timestamp) {
-        const date = new Date(o.Timestamp);
-        formattedTime = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    // Format date if available
+    let orderDate = '';
+    if (order.Timestamp) {
+      try {
+        orderDate = new Date(order.Timestamp).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      } catch (e) {
+        orderDate = order.Timestamp;
       }
-    } catch (e) {
-      // Keep original timestamp if formatting fails
     }
     
     return `
-      <tr>
-        <td><strong>${o.OrderID || 'N/A'}</strong></td>
-        <td>${formattedTime}</td>
-        <td>${o.CustomerName || ''}</td>
-        <td>${o.Phone || ''}</td>
-        <td>${o.ProductTitle || ''}</td>
-        <td>${o.Quantity || ''}</td>
-        <td>₹${o.TotalAmount || 0}</td>
-        <td><span class="badge ${statusClass} status-badge">${o.Status || 'NEW'}</span></td>
-        <td>
-          <button class="btn btn-sm btn-success me-1" onclick='openUpdateModal(${JSON.stringify(o).replace(/'/g, "&#39;")})'>
-            <i class="fa-solid fa-pen"></i>
-          </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.OrderID}')">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `;
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="card-title">${order.ProductTitle || 'Sports Product'}</h5>
+          <span class="order-price">₹${order.TotalAmount || '0'}</span>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p class="mb-1"><i class="fa-solid fa-tag me-2 text-muted"></i><strong>Order ID:</strong> ${order.OrderID || 'N/A'}</p>
+            <p class="mb-1"><i class="fa-solid fa-hashtag me-2 text-muted"></i><strong>Quantity:</strong> ${order.Quantity || '1'}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1"><i class="fa-solid fa-calendar me-2 text-muted"></i><strong>Order Date:</strong> ${orderDate || 'N/A'}</p>
+            <p class="mb-0"><i class="fa-solid fa-circle-check me-2 text-muted"></i><strong>Status:</strong> <span class="badge ${statusClass} status-badge">${order.Status || 'Processing'}</span></p>
+          </div>
+        </div>
+        
+        <div class="border-top pt-3">
+          <h6 class="mb-2"><i class="fa-solid fa-location-dot me-2"></i>Delivery Address</h6>
+          <p class="text-muted mb-0">${order.Address || ''}, ${order.Place || ''} - ${order.PinCode || ''}</p>
+        </div>
+      </div>
+    </div>`;
   }).join("");
 }
-
-function filterOrders() {
-  const searchText = document.getElementById('searchInput').value.toLowerCase();
-  if (!searchText) {
-    displayOrders(allOrders);
-    return;
-  }
-  
-  const filteredOrders = allOrders.filter(o => 
-    (o.CustomerName && o.CustomerName.toLowerCase().includes(searchText)) ||
-    (o.ProductTitle && o.ProductTitle.toLowerCase().includes(searchText)) ||
-    (o.OrderID && o.OrderID.toLowerCase().includes(searchText)) ||
-    (o.Phone && o.Phone.includes(searchText))
-  );
-  
-  displayOrders(filteredOrders);
-}
-
-function openUpdateModal(order) {
-  document.getElementById("updOrderId").value = order.OrderID;
-  document.getElementById("updCustomerName").value = order.CustomerName;
-  document.getElementById("updPhone").value = order.Phone;
-  document.getElementById("updProductTitle").value = order.ProductTitle;
-  document.getElementById("updQuantity").value = order.Quantity;
-  document.getElementById("updTotalAmount").value = order.TotalAmount;
-  document.getElementById("updAddress").value = order.Address;
-  document.getElementById("updPin").value = order.PinCode;
-  document.getElementById("updPlace").value = order.Place;
-  document.getElementById("updStatus").value = order.Status || 'NEW';
-
-  updateModal = new bootstrap.Modal(document.getElementById("updateModal"));
-  updateModal.show();
-}
-
-document.getElementById("updateForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  
-  // Show loading state
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  const originalText = submitBtn.innerHTML;
-  submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
-  submitBtn.disabled = true;
-  
-  const formData = new FormData(e.target);
-  const body = new URLSearchParams(formData);
-  body.append("action","update");
-
-  try {
-    showLoading(true);
-    const res = await fetch(API_URL, { method:"POST", body });
-    const result = await res.json();
-    showAlert(result.message || "Order updated successfully", result.status==="success" ? "success" : "warning");
-    updateModal.hide();
-    loadOrders();
-  } catch (err) {
-    console.error(err);
-    showAlert("Failed to update order. Please try again.", "danger");
-  } finally {
-    showLoading(false);
-    submitBtn.innerHTML = originalText;
-    submitBtn.disabled = false;
-  }
-});
-
-async function deleteOrder(orderId) {
-  if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
-  
-  try {
-    showLoading(true);
-    const body = new URLSearchParams();
-    body.append("action","delete");
-    body.append("orderId", orderId);
-    const res = await fetch(API_URL, { method:"POST", body });
-    const result = await res.json();
-    showAlert(result.message || "Order deleted successfully", result.status==="success" ? "success" : "warning");
-    loadOrders();
-  } catch (err) {
-    console.error(err);
-    showAlert("Failed to delete order. Please try again.", "danger");
-  } finally {
-    showLoading(false);
-  }
-}
-
-// Initialize the page
-loadOrders();
-
-// Add event listener for search input
-document.getElementById("searchInput").addEventListener("keyup", function(e) {
-  if (e.key === "Enter") {
-    filterOrders();
-  }
-});
 </script>
 </body>
 </html>
