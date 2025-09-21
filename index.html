@@ -18,117 +18,53 @@
     }
     
     .hero-section {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 4rem 0;
-      margin-bottom: 2rem;
-      border-radius: 0 0 20px 20px;
+      background: #e9ecef;
+      color: #333;
+      padding: 2rem 0;
+      margin-bottom: 1rem;
     }
     
     .card { 
-      transition: transform 0.3s, box-shadow 0.3s; 
-      border: none;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
     }
     
     .card img { 
-      height: 220px; 
+      height: 200px; 
       object-fit: cover;
     }
     
     .card-title {
       font-weight: 600;
-      color: #2c3e50;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(to right, #3498db, #2c3e50);
-      border: none;
-      font-weight: 600;
-    }
-    
-    .btn-primary:hover {
-      background: linear-gradient(to right, #2c3e50, #3498db);
-    }
-    
-    .btn-warning {
-      background: linear-gradient(to right, #f39c12, #e74c3c);
-      border: none;
-      font-weight: 600;
-      color: white;
-    }
-    
-    .loading-bar {
-      height: 4px;
-      width: 100%;
-      background: #f8f9fa;
-      overflow: hidden;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
-    }
-    
-    .loading-bar::before {
-      content: '';
-      display: block;
-      height: 100%;
-      width: 50%;
-      background: linear-gradient(to right, transparent, #3498db, transparent);
-      animation: loading 1.5s infinite;
-    }
-    
-    @keyframes loading {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
-    }
-    
-    .spinner-border-sm {
-      width: 1rem;
-      height: 1rem;
-    }
-    
-    .welcome-text {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-    
-    .welcome-subtext {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
+      color: #333;
     }
     
     .product-price {
-      color: #e74c3c;
+      color: #dc3545;
       font-weight: 700;
       font-size: 1.2rem;
     }
     
     .form-control:focus {
-      border-color: #3498db;
-      box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .search-bar {
+      max-width: 600px;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
-<div class="loading-bar" id="mainLoadingBar" style="display: none;"></div>
 
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
     <a class="navbar-brand" href="#">
       <i class="fa-solid fa-trophy me-2"></i>Sports Store
     </a>
     <div>
-      <a class="btn btn-warning" href="orderuser.html">
+      <a class="btn btn-outline-secondary" href="orderuser.html">
         <i class="fa-solid fa-bag-shopping me-1"></i> My Orders
       </a>
     </div>
@@ -137,14 +73,24 @@
 
 <div class="hero-section text-center">
   <div class="container">
-    <div class="welcome-text">Welcome to Sports Store</div>
-    <div class="welcome-subtext">Your premier destination for quality sports equipment</div>
+    <h1>Welcome to Sports Store</h1>
+    <p>Your premier destination for quality sports equipment</p>
   </div>
 </div>
 
 <div class="container mt-4">
   <div id="alertArea"></div>
   
+  <!-- Search Bar -->
+  <div class="search-bar my-4">
+    <div class="input-group">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search products..." aria-label="Search products">
+      <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
   <div class="d-flex justify-content-center my-4">
     <div class="spinner-border text-primary" id="productsSpinner"></div>
   </div>
@@ -157,7 +103,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <form id="orderForm">
-      <div class="modal-header bg-light">
+      <div class="modal-header">
         <h5 class="modal-title"><i class="fa-solid fa-cart-plus me-2"></i>Place Order</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -226,74 +172,74 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbx7Z-vqCzhfKiXz4faj9voVygx9H0pBk8O6JMmZkY5guIcVKAG0ufpMd6qxvMC6EKfsEw/exec"; // <<--- REPLACE THIS
 
+let allProducts = []; // Store all products for filtering
+
 function showAlert(msg, type='danger') {
   document.getElementById('alertArea').innerHTML = `
     <div class="alert alert-${type} alert-dismissible fade show">
       ${msg}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>`;
-  setTimeout(()=> { document.getElementById('alertArea').innerHTML = '' }, 6000);
+  setTimeout(() => { document.getElementById('alertArea').innerHTML = '' }, 6000);
 }
 
-function showLoading(show) {
-  document.getElementById('mainLoadingBar').style.display = show ? 'block' : 'none';
+function renderProducts(products) {
+  const list = document.getElementById("productList");
+  document.getElementById("productsSpinner").style.display = "none";
+  
+  if (products.length === 0) {
+    list.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+        <h3 class="text-muted">No Products Found</h3>
+        <p>Try a different search or check back later for new sports equipment.</p>
+      </div>`;
+    return;
+  }
+  
+  list.innerHTML = products.map(p => `
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <img src="${p.imageUrl||'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top" alt="${p.title}">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">${p.title}</h5>
+          <p class="card-text flex-grow-1">${p.description || 'High-quality sports equipment for your training needs.'}</p>
+          <div class="d-flex justify-content-between align-items-center mt-auto">
+            <span class="product-price">₹${p.price}</span>
+            <button class="btn btn-primary" onclick="openOrderModal('${escapeHtml(p.id)}','${escapeHtml(p.title)}',${Number(p.price) || 0})">
+              <i class="fa-solid fa-cart-shopping me-1"></i> Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
 }
 
 async function loadProducts() {
   try {
-    showLoading(true);
     const res = await fetch(`${API_URL}?action=products`);
     if (!res.ok) {
       const text = await res.text();
       throw new Error(`HTTP ${res.status}: ${text}`);
     }
-    const products = await res.json();
-    const list = document.getElementById("productList");
-    document.getElementById("productsSpinner").style.display = "none";
+    allProducts = await res.json();
     
-    if (!Array.isArray(products)) {
+    if (!Array.isArray(allProducts)) {
       showAlert("Unexpected response from backend. Check API_URL and deployment.", "warning");
-      console.error("Products response:", products);
+      console.error("Products response:", allProducts);
       return;
     }
     
-    if (products.length === 0) {
-      list.innerHTML = `
-        <div class="col-12 text-center py-5">
-          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-          <h3 class="text-muted">No Products Available</h3>
-          <p>Check back later for new sports equipment.</p>
-        </div>`;
-      return;
-    }
-    
-    list.innerHTML = products.map(p => `
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100">
-          <img src="${p.imageUrl||'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top" alt="${p.title}">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">${p.title}</h5>
-            <p class="card-text flex-grow-1">${p.description || 'High-quality sports equipment for your training needs.'}</p>
-            <div class="d-flex justify-content-between align-items-center mt-auto">
-              <span class="product-price">₹${p.price}</span>
-              <button class="btn btn-primary" onclick="openOrderModal('${escapeHtml(p.id)}','${escapeHtml(p.title)}',${Number(p.price) || 0})">
-                <i class="fa-solid fa-cart-shopping me-1"></i> Buy Now
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `).join("");
+    renderProducts(allProducts);
   } catch (err) {
     console.error("Error loading products:", err);
     document.getElementById("productsSpinner").style.display = "none";
     showAlert("Failed to load products. See console. Make sure the Apps Script is deployed and API_URL is correct.", "danger");
-  } finally {
-    showLoading(false);
   }
 }
 
-function escapeHtml(s){ 
+function escapeHtml(s) { 
   return String(s||'').replace(/'/g,"\\'").replace(/"/g,'\"'); 
 }
 
@@ -316,6 +262,23 @@ function updateTotal() {
   document.getElementById("totalAmount").value = (q * price + extra).toFixed(2);
 }
 
+// Search functionality
+function filterProducts() {
+  const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filteredProducts = allProducts.filter(product => 
+    product.title.toLowerCase().includes(searchTerm) || 
+    (product.description && product.description.toLowerCase().includes(searchTerm))
+  );
+  renderProducts(filteredProducts);
+}
+
+document.getElementById("searchInput").addEventListener("input", filterProducts);
+
+document.getElementById("clearSearch").addEventListener("click", () => {
+  document.getElementById("searchInput").value = "";
+  renderProducts(allProducts);
+});
+
 document.getElementById("quantity").addEventListener("input", function() {
   if (this.value > 5) this.value = 5;
   if (this.value < 1) this.value = 1;
@@ -327,7 +290,6 @@ document.getElementById("extraAmount").addEventListener("input", updateTotal);
 document.getElementById("orderForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   
-  // Disable the submit button and show spinner
   const submitBtn = document.getElementById("submitOrderButton");
   const submitSpinner = document.getElementById("submitSpinner");
   const submitText = document.getElementById("submitText");
@@ -336,7 +298,6 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
   submitSpinner.style.display = "inline-block";
   submitText.textContent = "Submitting...";
   
-  // Basic pin validation: 6 digits (optional) - keep minimal for now
   const pinVal = document.getElementById("pin").value.trim();
   if (!/^\d{4,6}$/.test(pinVal)) {
     if (!confirm("Pin code looks unusual. Continue anyway?")) {
@@ -361,7 +322,6 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
   formData.append("place", document.getElementById("place").value);
 
   try {
-    showLoading(true);
     const res = await fetch(API_URL, { method: "POST", body: formData });
     if (!res.ok) {
       const text = await res.text();
@@ -380,7 +340,6 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
     console.error("Error submitting order:", err);
     showAlert("Failed to submit order. Check console and ensure Apps Script web app is deployed and accessible.", "danger");
   } finally {
-    showLoading(false);
     submitBtn.disabled = false;
     submitSpinner.style.display = "none";
     submitText.textContent = "Submit Order";
