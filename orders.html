@@ -18,15 +18,23 @@
     }
     
     .hero-section {
-      background: #e9ecef;
+      background: linear-gradient(135deg, #e9ecef 0%, #d6d8db 100%);
       color: #333;
       padding: 2rem 0;
       margin-bottom: 1rem;
+      border-bottom: 1px solid #ced4da;
     }
     
     .card {
       border: 1px solid #dee2e6;
-      border-radius: 0.25rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      transition: transform 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
     }
     
     .table thead th {
@@ -56,13 +64,13 @@
     
     .modal-content {
       border: none;
-      border-radius: 0.25rem;
+      border-radius: 0.5rem;
     }
     
     .modal-header {
       background: #e9ecef;
       color: #333;
-      border-radius: 0.25rem 0.25rem 0 0;
+      border-radius: 0.5rem 0.5rem 0 0;
     }
     
     .form-control:focus, .form-select:focus {
@@ -118,6 +126,68 @@
       color: #6c757d;
       margin-top: 0.5rem;
     }
+    
+    .status-summary {
+      margin-bottom: 2rem;
+    }
+    
+    .status-card {
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .status-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .status-count {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .status-label {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .status-new {
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .status-processing {
+      background-color: #fff3e0;
+      border-left: 4px solid #ff9800;
+    }
+    
+    .status-shipped {
+      background-color: #e8f5e9;
+      border-left: 4px solid #4caf50;
+    }
+    
+    .status-delivered {
+      background-color: #f1f8e9;
+      border-left: 4px solid #8bc34a;
+    }
+    
+    .status-cancelled {
+      background-color: #ffebee;
+      border-left: 4px solid #f44336;
+    }
+    
+    .active-filter {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-5px);
+    }
+    
+    .summary-title {
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
   </style>
 </head>
 <body>
@@ -145,6 +215,49 @@
     <button class="btn btn-primary" onclick="loadOrders()">
       <i class="fa-solid fa-rotate me-1"></i> Refresh
     </button>
+  </div>
+  
+  <!-- Status Summary Section -->
+  <div class="status-summary">
+    <h4 class="summary-title"><i class="fa-solid fa-chart-pie me-2"></i>Orders Summary</h4>
+    <div class="row g-3" id="statusSummary">
+      <div class="col-md-2 col-6">
+        <div class="card status-card status-new p-3 active-filter" onclick="filterByStatus('ALL')">
+          <div class="status-count text-primary" id="totalOrders">0</div>
+          <div class="status-label text-muted">TOTAL ORDERS</div>
+        </div>
+      </div>
+      <div class="col-md-2 col-6">
+        <div class="card status-card status-new p-3" onclick="filterByStatus('NEW')">
+          <div class="status-count text-primary" id="newOrders">0</div>
+          <div class="status-label text-muted">NEW</div>
+        </div>
+      </div>
+      <div class="col-md-2 col-6">
+        <div class="card status-card status-processing p-3" onclick="filterByStatus('PROCESSING')">
+          <div class="status-count text-warning" id="processingOrders">0</div>
+          <div class="status-label text-muted">PROCESSING</div>
+        </div>
+      </div>
+      <div class="col-md-2 col-6">
+        <div class="card status-card status-shipped p-3" onclick="filterByStatus('SHIPPED')">
+          <div class="status-count text-info" id="shippedOrders">0</div>
+          <div class="status-label text-muted">SHIPPED</div>
+        </div>
+      </div>
+      <div class="col-md-2 col-6">
+        <div class="card status-card status-delivered p-3" onclick="filterByStatus('DELIVERED')">
+          <div class="status-count text-success" id="deliveredOrders">0</div>
+          <div class="status-label text-muted">DELIVERED</div>
+        </div>
+      </div>
+      <div class="col-md-2 col-6">
+        <div class="card status-card status-cancelled p-3" onclick="filterByStatus('CANCELLED')">
+          <div class="status-count text-danger" id="cancelledOrders">0</div>
+          <div class="status-label text-muted">CANCELLED</div>
+        </div>
+      </div>
+    </div>
   </div>
   
   <!-- Enhanced Search Bar -->
@@ -287,6 +400,7 @@ let updateModal;
 let allOrders = [];
 let currentSearchTerm = '';
 let currentSearchType = 'all';
+let currentStatusFilter = 'ALL';
 
 function showAlert(msg, type='danger') {
   document.getElementById('alertArea').innerHTML = `
@@ -308,9 +422,13 @@ async function loadOrders() {
     const data = await res.json();
     allOrders = data;
     
+    updateStatusSummary(data);
+    
     // If there's an active search, apply it to the newly loaded data
     if (currentSearchTerm) {
       filterOrders(currentSearchType, currentSearchTerm);
+    } else if (currentStatusFilter !== 'ALL') {
+      filterByStatus(currentStatusFilter);
     } else {
       displayOrders(data);
     }
@@ -318,6 +436,31 @@ async function loadOrders() {
     console.error(err);
     showAlert("Failed to load orders. Please check your connection and try again.", "danger");
   }
+}
+
+function updateStatusSummary(orders) {
+  const statusCounts = {
+    'NEW': 0,
+    'PROCESSING': 0,
+    'SHIPPED': 0,
+    'DELIVERED': 0,
+    'CANCELLED': 0
+  };
+  
+  orders.forEach(order => {
+    const status = order.Status || 'NEW';
+    if (statusCounts.hasOwnProperty(status)) {
+      statusCounts[status]++;
+    }
+  });
+  
+  // Update the summary cards
+  document.getElementById('totalOrders').textContent = orders.length;
+  document.getElementById('newOrders').textContent = statusCounts['NEW'];
+  document.getElementById('processingOrders').textContent = statusCounts['PROCESSING'];
+  document.getElementById('shippedOrders').textContent = statusCounts['SHIPPED'];
+  document.getElementById('deliveredOrders').textContent = statusCounts['DELIVERED'];
+  document.getElementById('cancelledOrders').textContent = statusCounts['CANCELLED'];
 }
 
 function displayOrders(orders) {
@@ -329,7 +472,7 @@ function displayOrders(orders) {
         <td colspan="9" class="text-center py-5">
           <i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i>
           <h5 class="text-muted">No Orders Found</h5>
-          <p class="text-muted">There are no orders in the system yet.</p>
+          <p class="text-muted">There are no orders matching your criteria.</p>
         </td>
       </tr>`;
     return;
@@ -377,6 +520,27 @@ function displayOrders(orders) {
   }).join("");
 }
 
+function filterByStatus(status) {
+  currentStatusFilter = status;
+  
+  // Update active filter UI
+  document.querySelectorAll('.status-card').forEach(card => {
+    card.classList.remove('active-filter');
+  });
+  
+  if (status === 'ALL') {
+    document.querySelectorAll('.status-card')[0].classList.add('active-filter');
+    displayOrders(allOrders);
+  } else {
+    document.querySelectorAll('.status-card')[[
+      'ALL', 'NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'
+    ].indexOf(status)].classList.add('active-filter');
+    
+    const filteredOrders = allOrders.filter(o => o.Status === status);
+    displayOrders(filteredOrders);
+  }
+}
+
 // Enhanced search functionality
 function performSearch() {
   const searchType = document.getElementById('searchType').value;
@@ -386,7 +550,7 @@ function performSearch() {
   
   if (searchText.length < 2) {
     showAlert("Please enter at least 2 characters to search", "warning");
-    displayOrders(allOrders);
+    filterByStatus(currentStatusFilter);
     return;
   }
   
@@ -403,7 +567,15 @@ function filterOrders(searchType, searchText) {
   const searchTextLower = searchText.toLowerCase();
   const searchTextNormalized = normalizePhone(searchText);
   
-  const filteredOrders = allOrders.filter(o => {
+  let filteredOrders = allOrders;
+  
+  // First apply status filter if needed
+  if (currentStatusFilter !== 'ALL') {
+    filteredOrders = filteredOrders.filter(o => o.Status === currentStatusFilter);
+  }
+  
+  // Then apply search filter
+  filteredOrders = filteredOrders.filter(o => {
     if (searchType === 'all') {
       // Search across all relevant fields
       return (
@@ -444,7 +616,7 @@ function filterOrders(searchType, searchText) {
 function clearSearch() {
   document.getElementById('searchInput').value = '';
   currentSearchTerm = '';
-  displayOrders(allOrders);
+  filterByStatus(currentStatusFilter);
 }
 
 // Auto-suggest functionality for search
