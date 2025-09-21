@@ -5,87 +5,307 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sports Store - Shop</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { background:#f8f9fa; }
-    .card img { height:200px; object-fit:cover; }
+    :root {
+      --primary: #2c3e50;
+      --secondary: #3498db;
+      --accent: #e74c3c;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+    }
+    
+    body { 
+      background: #f8f9fa; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    
+    .card { 
+      border: none; 
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .card img { 
+      height: 220px; 
+      object-fit: cover;
+    }
+    
+    .card-title {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary);
+      border-color: var(--secondary);
+      font-weight: 600;
+      padding: 10px 20px;
+    }
+    
+    .btn-primary:hover {
+      background-color: #2980b9;
+      border-color: #2980b9;
+    }
+    
+    .btn-warning {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .btn-warning:hover {
+      background-color: #c0392b;
+      border-color: #c0392b;
+      color: white;
+    }
+    
+    .modal-header {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .modal-title {
+      font-weight: 600;
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: 5px;
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid var(--secondary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .product-card {
+      position: relative;
+    }
+    
+    .product-price {
+      font-size: 1.25rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    
+    .hero-section {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      padding: 80px 0;
+      margin-bottom: 40px;
+      border-radius: 0 0 20px 20px;
+    }
+    
+    .section-title {
+      position: relative;
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--secondary);
+    }
+    
+    .alert {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
   </style>
 </head>
 <body>
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-dark" style="background-color: var(--primary);">
   <div class="container">
-    <a class="navbar-brand" href="#">🏆 Sports Store</a>
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-trophy me-2"></i>Sports Store
+    </a>
     <div>
-      <a class="btn btn-warning" href="orderuser.html">My Orders</a>
+      <a class="btn btn-warning" href="orderuser.html">
+        <i class="fas fa-shopping-bag me-1"></i> My Orders
+      </a>
     </div>
   </div>
 </nav>
 
+<div class="hero-section">
+  <div class="container text-center">
+    <h1 class="display-4 fw-bold">Premium Sports Equipment</h1>
+    <p class="lead">Get the best gear for your favorite sports with unbeatable quality and prices</p>
+  </div>
+</div>
+
 <div class="container mt-4">
   <div id="alertArea"></div>
-  <div class="row" id="productList"></div>
+  
+  <h2 class="section-title">Our Products</h2>
+  
+  <div class="row" id="productList">
+    <!-- Products will be loaded here -->
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="mainLoading" style="display: none;">
+  <div class="spinner"></div>
+  <p>Loading products...</p>
 </div>
 
 <!-- Order Modal -->
 <div class="modal fade" id="orderModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form id="orderForm">
       <div class="modal-header">
-        <h5 class="modal-title">Place Order</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-shopping-cart me-2"></i>Place Order</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
           <input type="hidden" id="productId">
           <input type="hidden" id="productTitle">
           <input type="hidden" id="unitPrice">
 
-          <div class="mb-3">
-            <label class="form-label">Product</label>
-            <input type="text" id="productTitleDisplay" class="form-control" readonly>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Product</label>
+                <input type="text" id="productTitleDisplay" class="form-control" readonly>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label class="form-label">Unit Price (₹)</label>
+                <input type="text" id="unitPriceDisplay" class="form-control" readonly>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label class="form-label">Quantity (min 5)</label>
+                <input type="number" id="quantity" class="form-control" min="5" value="5" required>
+              </div>
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Quantity (min 5)</label>
-            <input type="number" id="quantity" class="form-control" min="5" value="5" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Extra Amount (₹)</label>
+                <input type="number" id="extraAmount" class="form-control" value="0">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Total Amount (₹)</label>
+                <input type="text" id="totalAmount" class="form-control fw-bold" readonly>
+              </div>
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Extra Amount (₹)</label>
-            <input type="number" id="extraAmount" class="form-control" value="0">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Total Amount (₹)</label>
-            <input type="text" id="totalAmount" class="form-control" readonly>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input type="text" id="customerName" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Phone</label>
-            <input type="text" id="phone" class="form-control" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" id="customerName" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input type="text" id="phone" class="form-control" required>
+              </div>
+            </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Address</label>
-            <textarea id="address" class="form-control" required></textarea>
+            <textarea id="address" class="form-control" required rows="3"></textarea>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Pin Code</label>
-            <input type="text" id="pin" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Place / City</label>
-            <input type="text" id="place" class="form-control" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Pin Code</label>
+                <input type="text" id="pin" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Place / City</label>
+                <input type="text" id="place" class="form-control" required>
+              </div>
+            </div>
           </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary w-100">Submit Order</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submitOrderBtn">
+          <span class="submit-text">Submit Order</span>
+          <span class="loading-spinner" style="display: none;">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Processing...
+          </span>
+        </button>
       </div>
       </form>
     </div>
@@ -97,11 +317,43 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbx7Z-vqCzhfKiXz4faj9voVygx9H0pBk8O6JMmZkY5guIcVKAG0ufpMd6qxvMC6EKfsEw/exec"; // <<--- REPLACE THIS
 
 function showAlert(msg, type='danger') {
-  document.getElementById('alertArea').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
-  setTimeout(()=> { document.getElementById('alertArea').innerHTML = '' }, 6000);
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+  alertDiv.innerHTML = `
+    ${msg}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  document.getElementById('alertArea').appendChild(alertDiv);
+  setTimeout(() => { 
+    if (alertDiv.parentElement) {
+      alertDiv.classList.remove('show');
+      setTimeout(() => alertDiv.remove(), 150);
+    }
+  }, 5000);
+}
+
+function showLoading(show) {
+  document.getElementById('mainLoading').style.display = show ? 'flex' : 'none';
+}
+
+function setSubmitButtonLoading(loading) {
+  const submitBtn = document.getElementById('submitOrderBtn');
+  const submitText = submitBtn.querySelector('.submit-text');
+  const loadingSpinner = submitBtn.querySelector('.loading-spinner');
+  
+  if (loading) {
+    submitBtn.disabled = true;
+    submitText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
+  } else {
+    submitBtn.disabled = false;
+    submitText.style.display = 'inline-block';
+    loadingSpinner.style.display = 'none';
+  }
 }
 
 async function loadProducts() {
+  showLoading(true);
   try {
     const res = await fetch(`${API_URL}?action=products`);
     if (!res.ok) {
@@ -110,40 +362,59 @@ async function loadProducts() {
     }
     const products = await res.json();
     const list = document.getElementById("productList");
+    
     if (!Array.isArray(products)) {
       showAlert("Unexpected response from backend. Check API_URL and deployment.", "warning");
       console.error("Products response:", products);
       return;
     }
+    
     list.innerHTML = products.map(p => `
-      <div class="col-md-4">
-        <div class="card shadow-sm mb-4">
-          <img src="${p.imageUrl||'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top" alt="${p.title}">
-          <div class="card-body">
+      <div class="col-md-4 mb-4">
+        <div class="card product-card shadow-sm h-100">
+          <img src="${p.imageUrl||'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}" class="card-img-top" alt="${p.title}">
+          <div class="card-body d-flex flex-column">
             <h5 class="card-title">${p.title}</h5>
-            <p class="card-text">${p.description || ''}</p>
-            <p class="fw-bold">₹${p.price}</p>
-            <button class="btn btn-primary w-100" onclick="openOrderModal('${escapeHtml(p.id)}','${escapeHtml(p.title)}',${Number(p.price) || 0})">Buy Now</button>
+            <p class="card-text flex-grow-1">${p.description || 'High-quality sports equipment for professional and amateur athletes.'}</p>
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+              <span class="product-price">₹${p.price}</span>
+              <button class="btn btn-primary" onclick="openOrderModal('${escapeHtml(p.id)}','${escapeHtml(p.title)}',${Number(p.price) || 0})">
+                <i class="fas fa-shopping-cart me-1"></i> Buy Now
+              </button>
+            </div>
           </div>
         </div>
       </div>
     `).join("");
   } catch (err) {
     console.error("Error loading products:", err);
-    showAlert("Failed to load products. See console. Make sure the Apps Script is deployed and API_URL is correct.", "danger");
+    showAlert("Failed to load products. Please check your connection and try again.", "danger");
+  } finally {
+    showLoading(false);
   }
 }
 
-function escapeHtml(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'\"'); }
+function escapeHtml(s){ 
+  return String(s||'').replace(/'/g,"&#39;").replace(/"/g,'&quot;'); 
+}
 
 function openOrderModal(id, title, price) {
   document.getElementById("productId").value = id;
   document.getElementById("productTitle").value = title;
   document.getElementById("unitPrice").value = price;
   document.getElementById("productTitleDisplay").value = title;
+  document.getElementById("unitPriceDisplay").value = price.toFixed(2);
   document.getElementById("quantity").value = 5;
   document.getElementById("extraAmount").value = 0;
   updateTotal();
+  
+  // Clear form fields
+  document.getElementById("customerName").value = "";
+  document.getElementById("phone").value = "";
+  document.getElementById("address").value = "";
+  document.getElementById("pin").value = "";
+  document.getElementById("place").value = "";
+  
   const modal = new bootstrap.Modal(document.getElementById('orderModal'));
   modal.show();
 }
@@ -160,12 +431,16 @@ document.getElementById("extraAmount").addEventListener("input", updateTotal);
 
 document.getElementById("orderForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  // Basic pin validation: 6 digits (optional) - keep minimal for now
+  
+  // Basic pin validation
   const pinVal = document.getElementById("pin").value.trim();
   if (!/^\d{4,6}$/.test(pinVal)) {
-    if (!confirm("Pin code looks unusual. Continue anyway?")) return;
+    showAlert("Please enter a valid pin code (4-6 digits)");
+    return;
   }
-
+  
+  setSubmitButtonLoading(true);
+  
   const formData = new URLSearchParams();
   formData.append("productId", document.getElementById("productId").value);
   formData.append("productTitle", document.getElementById("productTitle").value);
@@ -187,19 +462,21 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
     }
     const result = await res.json();
     if (result.status === "success") {
-      showAlert("Order placed successfully! ID: " + result.orderId, "success");
-      document.getElementById("orderForm").reset();
+      showAlert("Order placed successfully! Your order ID is: " + result.orderId, "success");
       bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
     } else {
-      showAlert("Error placing order: " + (result.message || "unknown"), "danger");
+      showAlert("Error placing order: " + (result.message || "Unknown error occurred"), "danger");
       console.error("Order error:", result);
     }
   } catch (err) {
     console.error("Error submitting order:", err);
-    showAlert("Failed to submit order. Check console and ensure Apps Script web app is deployed and accessible.", "danger");
+    showAlert("Failed to submit order. Please check your connection and try again.", "danger");
+  } finally {
+    setSubmitButtonLoading(false);
   }
 });
 
+// Initialize the page
 loadProducts();
 </script>
 </body>
