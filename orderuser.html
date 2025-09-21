@@ -18,39 +18,15 @@
     }
     
     .hero-section {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 3rem 0;
-      margin-bottom: 2rem;
-      border-radius: 0 0 20px 20px;
-    }
-    
-    .welcome-text {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    
-    .welcome-subtext {
-      font-size: 1.1rem;
-      opacity: 0.9;
+      background: #e9ecef;
+      color: #333;
+      padding: 2rem 0;
+      margin-bottom: 1rem;
     }
     
     .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      transition: transform 0.3s;
-    }
-    
-    .card:hover {
-      transform: translateY(-3px);
-    }
-    
-    .order-card {
-      border-left: 4px solid #3498db;
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
     }
     
     .status-badge {
@@ -59,56 +35,13 @@
       border-radius: 20px;
     }
     
-    .btn-primary {
-      background: linear-gradient(to right, #3498db, #2c3e50);
-      border: none;
-      font-weight: 600;
-    }
-    
-    .btn-primary:hover {
-      background: linear-gradient(to right, #2c3e50, #3498db);
-    }
-    
     .form-control:focus {
-      border-color: #3498db;
-      box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
-    }
-    
-    .loading-bar {
-      height: 4px;
-      width: 100%;
-      background: #f8f9fa;
-      overflow: hidden;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
-      display: none;
-    }
-    
-    .loading-bar::before {
-      content: '';
-      display: block;
-      height: 100%;
-      width: 50%;
-      background: linear-gradient(to right, transparent, #3498db, transparent);
-      animation: loading 1.5s infinite;
-    }
-    
-    @keyframes loading {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
-    }
-    
-    .search-box {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
     
     .order-price {
-      color: #e74c3c;
+      color: #dc3545;
       font-weight: 700;
       font-size: 1.2rem;
     }
@@ -126,25 +59,164 @@
   </style>
 </head>
 <body>
-<div class="loading-bar" id="mainLoadingBar"></div>
 
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
     <a class="navbar-brand" href="index.html">
       <i class="fa-solid fa-trophy me-2"></i>Sports Store
     </a>
-    <span class="navbar-text text-light fs-6 d-none d-md-block">Order Management</span>
   </div>
 </nav>
 
 <div class="hero-section text-center">
   <div class="container">
-    <div class="welcome-text">My Orders</div>
-    <div class="welcome-subtext">Track your orders and delivery status</div>
+    <h1>My Orders</h1>
+    <p>Track your orders and delivery status</p>
   </div>
 </div>
 
 <div class="container mt-4">
+  <div id="alertArea"></div>
+  
+  <div class="mb-4">
+    <h4><i class="fa-solid fa-magnifying-glass me-2"></i>Find Your Orders</h4>
+    <div class="input-group">
+      <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+      <input type="text" id="phoneInput" class="form-control form-control-lg" placeholder="Enter your phone number">
+      <button class="btn btn-primary" id="searchBtn">
+        <span class="spinner-border spinner-border-sm" id="searchSpinner" style="display: none;"></span>
+        <span id="searchText">Search Orders</span>
+      </button>
+    </div>
+    <div class="form-text mt-2">Enter the phone number you used when placing your order</div>
+  </div>
+  
+  <h3 class="mb-3" id="resultsTitle" style="display: none;">Your Orders</h3>
+  <div id="ordersContainer"></div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbx7Z-vqCzhfKiXz4faj9voVygx9H0pBk8O6JMmZkY5guIcVKAG0ufpMd6qxvMC6EKfsEw/exec";
+
+function showAlert(msg, type='danger') {
+  document.getElementById('alertArea').innerHTML = `
+    <div class="alert alert-${type} alert-dismissible fade show">
+      <i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'} me-2"></i>
+      ${msg}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
+  setTimeout(() => { document.getElementById('alertArea').innerHTML = '' }, 6000);
+}
+
+document.getElementById("searchBtn").addEventListener("click", fetchOrders);
+document.getElementById("phoneInput").addEventListener("keyup", (e) => { 
+  if (e.key === "Enter") fetchOrders(); 
+});
+
+async function fetchOrders() {
+  const phone = document.getElementById("phoneInput").value.trim();
+  if (!phone) { 
+    showAlert("Please enter your phone number", "warning"); 
+    return; 
+  }
+  
+  // Validate phone number format
+  if (!/^[0-9]{10}$/.test(phone)) {
+    showAlert("Please enter a valid 10-digit phone number", "warning");
+    return;
+  }
+  
+  try {
+    // Show loading state
+    document.getElementById("searchSpinner").style.display = "inline-block";
+    document.getElementById("searchText").textContent = "Searching...";
+    document.getElementById("searchBtn").disabled = true;
+    
+    const res = await fetch(`${API_URL}?action=getOrders&phone=${encodeURIComponent(phone)}`);
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status}: ${txt}`);
+    }
+    const data = await res.json();
+    displayOrders(data, phone);
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+    showAlert("Failed to fetch orders. Please check your connection and try again.");
+  } finally {
+    document.getElementById("searchSpinner").style.display = "none";
+    document.getElementById("searchText").textContent = "Search Orders";
+    document.getElementById("searchBtn").disabled = false;
+  }
+}
+
+function displayOrders(orders, phone) {
+  const container = document.getElementById("ordersContainer");
+  const resultsTitle = document.getElementById("resultsTitle");
+  
+  if (!orders || orders.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-box-open"></i>
+        <h4 class="text-muted">No orders found</h4>
+        <p class="text-muted">We couldn't find any orders for phone number: ${phone}</p>
+      </div>`;
+    resultsTitle.style.display = 'none';
+    return;
+  }
+  
+  resultsTitle.style.display = 'block';
+  container.innerHTML = orders.map(order => {
+    // Determine status badge color
+    let statusClass = 'bg-secondary';
+    if (order.Status === 'Delivered') statusClass = 'bg-success';
+    else if (order.Status === 'Shipped') statusClass = 'bg-primary';
+    else if (order.Status === 'Processing') statusClass = 'bg-warning';
+    else if (order.Status === 'Cancelled') statusClass = 'bg-danger';
+    
+    // Format date if available
+    let orderDate = '';
+    if (order.Timestamp) {
+      try {
+        orderDate = new Date(order.Timestamp).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      } catch (e) {
+        orderDate = order.Timestamp;
+      }
+    }
+    
+    return `
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="card-title">${order.ProductTitle || 'Sports Product'}</h5>
+          <span class="order-price">₹${order.TotalAmount || '0'}</span>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p class="mb-1"><i class="fa-solid fa-tag me-2 text-muted"></i><strong>Order ID:</strong> ${order.OrderID || 'N/A'}</p>
+            <p class="mb-1"><i class="fa-solid fa-hashtag me-2 text-muted"></i><strong>Quantity:</strong> ${order.Quantity || '1'}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1"><i class="fa-solid fa-calendar me-2 text-muted"></i><strong>Order Date:</strong> ${orderDate || 'N/A'}</p>
+            <p class="mb-0"><i class="fa-solid fa-circle-check me-2 text-muted"></i><strong>Status:</strong> <span class="badge ${statusClass} status-badge">${order.Status || 'Processing'}</span></p>
+          </div>
+        </div>
+        
+        <div class="border-top pt-3">
+          <h6 class="mb-2"><i class="fa-solid fa-location-dot me-2"></i>Delivery Address</h6>
+          <p class="text-muted mb-0">${order.Address || ''}, ${order.Place || ''} - ${order.PinCode || ''}</p>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+</script>
+</body>
+</html><div class="container mt-4">
   <div id="alertArea"></div>
   
   <div class="search-box mb-4">
@@ -292,3 +364,4 @@ function displayOrders(orders, phone) {
 </script>
 </body>
 </html>
+
