@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Orders Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style> body { background:#f8f9fa; } </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">🏆 Sports Store</a>
+    <span class="navbar-text text-light">Orders Admin</span>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div id="alertArea"></div>
+  <h3>All Orders</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Order ID</th><th>Time</th><th>Customer</th><th>Phone</th><th>Product</th>
+          <th>Qty</th><th>Total</th><th>Address</th><th>Pin</th><th>Place</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="updateForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Update Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body row g-3">
+          <input type="hidden" id="updOrderId" name="orderId">
+          <div class="col-md-6">
+            <label class="form-label">Customer Name</label>
+            <input type="text" class="form-control" id="updCustomerName" name="customerName" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" id="updPhone" name="phone" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Product</label>
+            <input type="text" class="form-control" id="updProductTitle" name="productTitle" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="updQuantity" name="quantity" min="1" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Total Amount (₹)</label>
+            <input type="number" class="form-control" id="updTotalAmount" name="totalAmount" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-control" id="updAddress" name="address" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Pin Code</label>
+            <input type="text" class="form-control" id="updPin" name="pin" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Place / City</label>
+            <input type="text" class="form-control" id="updPlace" name="place" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="updStatus" name="status">
+              <option>NEW</option>
+              <option>SHIPPED</option>
+              <option>DELIVERED</option>
+              <option>CANCELLED</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbx7Z-vqCzhfKiXz4faj9voVygx9H0pBk8O6JMmZkY5guIcVKAG0ufpMd6qxvMC6EKfsEw/exec"; // <<--- REPLACE THIS
+let updateModal;
+
+function showAlert(msg, type='danger') {
+  document.getElementById('alertArea').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(()=> { document.getElementById('alertArea').innerHTML = '' }, 5000);
+}
+
+async function loadOrders() {
+  try {
+    const res = await fetch(`${API_URL}?action=getAllOrders`);
+    const data = await res.json();
+    const tbody = document.getElementById("ordersTable");
+    tbody.innerHTML = data.map(o => `
+      <tr>
+        <td>${o.OrderID}</td>
+        <td>${o.Timestamp}</td>
+        <td>${o.CustomerName}</td>
+        <td>${o.Phone}</td>
+        <td>${o.ProductTitle}</td>
+        <td>${o.Quantity}</td>
+        <td>₹${o.TotalAmount}</td>
+        <td>${o.Address}</td>
+        <td>${o.PinCode}</td>
+        <td>${o.Place}</td>
+        <td><span class="badge bg-info">${o.Status}</span></td>
+        <td>
+          <button class="btn btn-sm btn-success" onclick='openUpdateModal(${JSON.stringify(o)})'>Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.OrderID}')">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+  } catch (err) {
+    console.error(err);
+    showAlert("Failed to load orders. Check API_URL.", "danger");
+  }
+}
+
+function openUpdateModal(order) {
+  document.getElementById("updOrderId").value = order.OrderID;
+  document.getElementById("updCustomerName").value = order.CustomerName;
+  document.getElementById("updPhone").value = order.Phone;
+  document.getElementById("updProductTitle").value = order.ProductTitle;
+  document.getElementById("updQuantity").value = order.Quantity;
+  document.getElementById("updTotalAmount").value = order.TotalAmount;
+  document.getElementById("updAddress").value = order.Address;
+  document.getElementById("updPin").value = order.PinCode;
+  document.getElementById("updPlace").value = order.Place;
+  document.getElementById("updStatus").value = order.Status;
+
+  updateModal = new bootstrap.Modal(document.getElementById("updateModal"));
+  updateModal.show();
+}
+
+document.getElementById("updateForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const body = new URLSearchParams(formData);
+  body.append("action","update");
+
+  try {
+    const res = await fetch(API_URL, { method:"POST", body });
+    const result = await res.json();
+    showAlert(result.message || "Updated", result.status==="success" ? "success" : "warning");
+    updateModal.hide();
+    loadOrders();
+  } catch (err) {
+    console.error(err);
+    showAlert("Failed to update order.", "danger");
+  }
+});
+
+async function deleteOrder(orderId) {
+  if (!confirm("Delete this order?")) return;
+  try {
+    const body = new URLSearchParams();
+    body.append("action","delete");
+    body.append("orderId", orderId);
+    const res = await fetch(API_URL, { method:"POST", body });
+    const result = await res.json();
+    showAlert(result.message || "Deleted", result.status==="success" ? "success" : "warning");
+    loadOrders();
+  } catch (err) {
+    console.error(err);
+    showAlert("Failed to delete order.", "danger");
+  }
+}
+
+loadOrders();
+</script>
+</body>
+</html>
